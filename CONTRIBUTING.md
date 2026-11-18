@@ -16,6 +16,13 @@ CI runs the same four commands on Python 3.11 to 3.13.
   `chore: ...`. A check enforces it, and the title becomes the squash commit.
 - Tests mock the HTTP layer; none may need a real key.
 
+## Releases
+
+Releases are automated. Merging to `main` tags a new version and creates a GitHub release, based on
+the PR title: `fix:` → patch, `feat:` → minor, `feat!:` or a `BREAKING CHANGE:` footer → major.
+`chore:`, `docs:`, `ci:`, `refactor:`, `test:` don't release. Don't edit the version in
+`pyproject.toml`. The package is not published to PyPI yet.
+
 ## Where things go
 
 - A tool's name, description, shown fields, defaults and caps: the `google-adk-python` surface in
