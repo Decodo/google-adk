@@ -1,6 +1,8 @@
-# Decodo + Gemini research agent
+# Decodo tools for Google ADK
 
-A [Google ADK](https://google.github.io/adk-docs/) agent that researches a topic end to end:
+`decodo-adk` gives [Google ADK](https://google.github.io/adk-docs/) agents search, scrape, map and
+crawl on the Decodo Web Data API. This repository also holds `research_agent`, an example agent
+that researches a topic end to end:
 
 1. **Decodo** searches the web and reads the pages (search, scrape, map and crawl on the Web Data API).
 2. **Gemini** analyses what was found.
@@ -19,10 +21,10 @@ Decodo publishes, so a new tool, field or limit reaches the agent without a code
 ## Setup
 
 ```bash
-git clone https://github.com/Decodo/gemini-research.git
-cd gemini-research
+git clone https://github.com/Decodo/google-adk.git
+cd google-adk
 python -m venv .venv && source .venv/bin/activate
-pip install -e .
+pip install -e ".[example]"
 cp research_agent/.env.example research_agent/.env
 ```
 
