@@ -5,6 +5,7 @@ from typing import Any
 
 import gspread
 import pytest
+from google.adk.tools import FunctionTool
 from gspread.utils import ValueInputOption
 
 from research_agent import sheets
@@ -74,3 +75,12 @@ def test_sheet_errors_are_results_without_details(monkeypatch: pytest.MonkeyPatc
     result = asyncio.run(sheets.log_analysis("q", "text"))
 
     assert "secret-value" not in result["error"]
+
+
+@pytest.mark.parametrize("tool", [sheets.log_search_results, sheets.log_analysis])
+def test_the_model_is_given_each_tool_description(tool: Any) -> None:
+    declared = FunctionTool(tool)._get_declaration()
+
+    assert declared is not None
+    assert declared.description == tool.__doc__.strip()
+    assert declared.description.startswith("Appends")

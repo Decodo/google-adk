@@ -17,8 +17,6 @@ from decodo_adk import DecodoToolset
 
 
 class ScriptedModel(BaseLlm):
-    """Calls decodo_search once, then answers in text."""
-
     requests: list[LlmRequest] = []
 
     async def generate_content_async(

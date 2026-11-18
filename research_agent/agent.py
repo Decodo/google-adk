@@ -1,5 +1,3 @@
-"""A research agent: Decodo finds and reads the pages, Gemini analyses them, Google Sheets keeps the log."""
-
 from __future__ import annotations
 
 import os
