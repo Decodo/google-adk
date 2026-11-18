@@ -1,10 +1,20 @@
 [project]
-name = "gemini-research"
-version = "0.1.0"
-description = "Decodo tools for Google ADK agents, built from what Decodo publishes"
+name = "decodo-adk"
+version = "0.0.0"
+description = "Decodo Web Data API tools for Google ADK agents."
 readme = "README.md"
 license = "MIT"
-authors = [{ name = "Decodo" }]
+authors = [{ name = "Decodo", email = "support@decodo.com" }]
+keywords = ["decodo", "google-adk", "gemini", "web-scraping", "agents", "tools"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 requires-python = ">=3.11,<3.14"
 dependencies = [
     # 2.6.0 is the first release with flows and surfaces, which every tool is built from.
@@ -16,6 +26,11 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.4", "mypy>=1.10"]
+
+[project.urls]
+Homepage = "https://decodo.com"
+Repository = "https://github.com/Decodo/google-adk"
+Documentation = "https://help.decodo.com/docs/introduction"
 
 [build-system]
 requires = ["setuptools>=77"]
@@ -36,3 +51,10 @@ packages = ["decodo_adk"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+commit_parser = "conventional"
+
+[tool.semantic_release.branches.main]
+match = "main"
