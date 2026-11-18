@@ -1,19 +1,47 @@
-# Decodo tools for Google ADK
+# Decodo + Gemini research agent
 
-Decodo tools for [Google ADK](https://google.github.io/adk-docs/) agents: search, scrape, map and
-crawl on the Web Data API.
+A [Google ADK](https://google.github.io/adk-docs/) agent that researches a topic end to end:
 
-The tools are not written by hand. `decodo_adk` builds them when the agent starts, from what
+1. **Decodo** searches the web and reads the pages (search, scrape, map and crawl on the Web Data API).
+2. **Gemini** analyses what was found.
+3. **Google Sheets** keeps a log of the search results and the analysis.
+
+The Decodo tools are not written by hand. `decodo_adk` builds them when the agent starts, from what
 Decodo publishes, so a new tool, field or limit reaches the agent without a code change.
+
+## Requirements
+
+- Python 3.11 to 3.13
+- A Decodo Web Data API key from the [playground](https://dashboard.decodo.com/web-data/playground)
+- A Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey)
+- A Google Cloud service account with the Google Sheets API enabled, and a sheet shared with it
 
 ## Setup
 
 ```bash
+git clone https://github.com/Decodo/gemini-research.git
+cd gemini-research
+python -m venv .venv && source .venv/bin/activate
 pip install -e .
-export DECODO_API_KEY=<your key>
+cp research_agent/.env.example research_agent/.env
 ```
 
-Get the key from the [Decodo dashboard](https://dashboard.decodo.com/web-data/playground).
+Fill in `research_agent/.env`. Nothing else holds credentials, and the file is git-ignored.
+
+| Variable | What it is |
+|---|---|
+| `DECODO_API_KEY` | Decodo Web Data API key |
+| `GOOGLE_API_KEY` | Gemini API key |
+| `GOOGLE_SERVICE_ACCOUNT_FILE` | Path to the service account's JSON key file |
+| `GOOGLE_SHEET_ID` | The id in the sheet's URL: `docs.google.com/spreadsheets/d/<id>/edit` |
+| `GEMINI_MODEL` | Optional. A Gemini model id; defaults to the ADK default model |
+
+### Google Sheets access
+
+1. In Google Cloud, enable the **Google Sheets API** and create a service account.
+2. Create a JSON key for it and save the file outside the repository.
+3. Create a sheet and share it with the service account's email as **Editor**. Share only this
+   sheet: the agent asks for the Sheets scope alone and can reach nothing else.
 
 ### Check the Decodo key
 
@@ -21,6 +49,20 @@ Get the key from the [Decodo dashboard](https://dashboard.decodo.com/web-data/pl
 export DECODO_API_KEY=...
 python -m decodo_adk.check
 ```
+
+## Run
+
+```bash
+adk run research_agent
+```
+
+Then ask, for example:
+
+> Research "best residential proxies 2026" and tell me what the top results have in common.
+
+The agent searches, logs the results to the **Search results** tab, reads the top pages, writes an
+analysis, logs it to the **Analysis** tab and shows it to you. `adk web` gives the same agent a
+browser UI.
 
 ## Tools
 
@@ -32,6 +74,7 @@ python -m decodo_adk.check
 | `decodo_crawl_start` | Starts reading many pages of a site; returns a `crawl_id` |
 | `decodo_crawl_results` | Waits for a crawl and returns its pages as markdown |
 | `decodo_crawl_cancel` | Stops a crawl |
+| `log_search_results`, `log_analysis` | Append rows to the Google Sheet |
 
 A crawl is billed per page. `decodo_crawl_start` reads 10 pages unless the agent asks for more, 50 at
 most, and every crawl can be checked or stopped by its `crawl_id`.
@@ -90,7 +133,7 @@ pip install -e ".[dev]"
 ruff check . && ruff format --check . && mypy && pytest
 ```
 
-Tests never call Decodo. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Tests never call Decodo, Gemini or Google Sheets. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

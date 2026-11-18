@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,9 @@ from decodo import RemoteSchema
 
 API_KEY = "test-key"
 CLIENT = "google-adk-python"
+
+# Importing research_agent builds the agent, which needs a key to exist.
+os.environ.setdefault("DECODO_API_KEY", API_KEY)
 
 # Cut from the Decodo IR built for version 2.6.0: its real endpoints, flows and surface.
 PUBLISHED_IR = json.loads((Path(__file__).parent / "fixtures" / "ir.json").read_text(encoding="utf-8"))

@@ -724,6 +724,12 @@ def test_an_empty_list_of_specs_means_no_tools(ir: Ir, monkeypatch: pytest.Monke
     assert asyncio.run(DecodoToolset(api_key=API_KEY, specs=()).get_tools()) == []
 
 
+def test_the_agent_prompt_names_no_tool_so_a_published_rename_cannot_break_it() -> None:
+    from research_agent.agent import INSTRUCTION
+
+    assert "decodo_" not in INSTRUCTION
+
+
 @pytest.mark.parametrize("key", ["", "   ", "line\nbreak", "tab\tkey", "ключ"])
 def test_unusable_key_is_refused_without_quoting_it(key: str, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DECODO_API_KEY", raising=False)
