@@ -1,5 +1,3 @@
-"""Checks that DECODO_API_KEY is accepted: ``python -m decodo_adk.check``."""
-
 from __future__ import annotations
 
 import sys
@@ -12,7 +10,6 @@ from .client import API_KEY_ENV_VAR, build_api, load_schema, resolve_api_key
 
 
 def api_key_problem(api: WebScrapingApi) -> str | None:
-    """None when the key was accepted, otherwise why it could not be confirmed."""
     try:
         api.flows.check_key()
     except AuthenticationError as error:

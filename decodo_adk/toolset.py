@@ -1,5 +1,3 @@
-"""An ADK toolset whose tools are built at runtime from what Decodo publishes."""
-
 from __future__ import annotations
 
 import asyncio
@@ -26,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 
 def _api_schema(spec: ToolSpec, flow: Mapping[str, Any], schema: FlowSchema) -> JsonSchema:
-    """The API fields a tool can show: a scrape target's, or the body of the request its flow sends."""
     if spec.target:
         found = schema.get_target_parameter_schema(spec.target)  # type: ignore[attr-defined]
         source = f"target {spec.target!r}"
@@ -40,7 +37,6 @@ def _api_schema(spec: ToolSpec, flow: Mapping[str, Any], schema: FlowSchema) -> 
 
 
 def build_parameters(spec: ToolSpec, flow: Mapping[str, Any], schema: FlowSchema) -> JsonSchema:
-    """The JSON schema of a tool's inputs: the published choices applied to the API's fields."""
     if flow["pattern"] == "job" and spec.step in ("results", "cancel"):
         id_field = flow["idField"]
         text = spec.descriptions.get(id_field, f"The {id_field} returned when the {spec.flow} was started.")
@@ -113,10 +109,8 @@ class DecodoTool(BaseTool):
                 return failure(f"{self.name} needs {', '.join(missing)}.", "invalid_input")
             return await asyncio.to_thread(runs.run, self._api, self._spec, params)
         except Exception as error:
-            # A tool error must reach the model as a result: an exception here ends the whole agent run.
             result = failure_from(error)
             if result["code"] == "unexpected_error":
-                # The message is left out: it can quote a request header, and with it the API key.
                 frames = "".join(traceback.format_tb(error.__traceback__))
                 logger.error("%s failed unexpectedly with %s\n%s", self.name, type(error).__name__, frames)
             if self._starts_work and maybe_sent(result, partly=self._spec.step is None):
@@ -126,7 +120,6 @@ class DecodoTool(BaseTool):
 
 
 def build_tools(specs: Sequence[ToolSpec], schema: DecodoSchema, api: WebScrapingApi) -> list[BaseTool]:
-    """One tool per spec. A spec that does not fit the schema is left out, so one bad entry costs one tool."""
     if not isinstance(schema, FlowSchema):
         return []
     tools: list[BaseTool] = []
@@ -141,15 +134,6 @@ def build_tools(specs: Sequence[ToolSpec], schema: DecodoSchema, api: WebScrapin
 
 
 class DecodoToolset(BaseToolset):
-    """Decodo Web Data API tools for an ADK agent.
-
-    The API key is read from ``DECODO_API_KEY`` unless passed in. The tools are
-    built on first use from the schema Decodo publishes: which tools exist and
-    what they show from its ``google-adk-python`` surface, how each one runs from
-    its flows, and the field types from the API description. Pass ``specs`` to
-    define the tools yourself.
-    """
-
     def __init__(
         self,
         *,
@@ -181,7 +165,6 @@ class DecodoToolset(BaseToolset):
         if self._specs is not None and not self._specs:
             return tools
         if not tools:
-            # A schema published after this code was written may not fit it; the one shipped with the SDK does.
             logger.warning("The published Decodo schema gave no usable tools; using the one bundled with decodo-sdk.")
             tools = self._tools_from(BundledSchema.shared)
         if not tools:

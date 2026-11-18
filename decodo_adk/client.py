@@ -1,5 +1,3 @@
-"""Builds the Decodo SDK client and loads the schema the tools are generated from."""
-
 from __future__ import annotations
 
 import logging
@@ -33,7 +31,6 @@ def resolve_api_key(api_key: str | None = None) -> str:
 
 
 def load_schema() -> DecodoSchema:
-    """The published schema, or the one bundled with the SDK when it cannot be fetched."""
     try:
         return RemoteSchema.load(RemoteSchemaLoadOptions(ttl_ms=SCHEMA_TTL_MS))
     except Exception as error:

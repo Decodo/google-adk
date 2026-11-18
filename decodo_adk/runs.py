@@ -1,10 +1,3 @@
-"""Runs a tool's flow through the SDK and fits the result to a model's context.
-
-Nothing here knows a product. How a flow is run (one call, a job that is
-started, waited for and read, or a batch), how its response is read and how
-much of it is returned all come from the published schema.
-"""
-
 from __future__ import annotations
 
 import json
@@ -21,7 +14,6 @@ Result = dict[str, Any]
 
 
 def _trimmed(value: Any, text_chars: int, list_values: int) -> Any:
-    """One result object with each long text cut and each long list shortened, and a note of what was cut."""
     if not isinstance(value, dict):
         return value
     trimmed: Result = {}
@@ -38,7 +30,6 @@ def _trimmed(value: Any, text_chars: int, list_values: int) -> Any:
 
 
 def _presented(result: Any, limits: Limits) -> Result:
-    """A result read from a response, in the form and size a model gets."""
     if isinstance(result, list):
         shown = result[: limits.max_items]
         text_chars = limits.max_text_chars // max(len(shown), 1)
@@ -52,7 +43,6 @@ def _presented(result: Any, limits: Limits) -> Result:
 
 
 def _bounded(result: Result, limits: Limits) -> Result:
-    """Any result, whatever is in it, cut to what a model's context can take."""
     text = json.dumps(result, ensure_ascii=False, default=str)
     if len(text) <= limits.max_result_chars:
         return result
@@ -67,7 +57,6 @@ def _read(spec: ToolSpec, response: Any) -> Result:
 
 
 def starts_work(spec: ToolSpec, flow: Mapping[str, Any]) -> bool:
-    """Whether a call starts billable work that a repeat would start a second time."""
     return flow["pattern"] == "batch" or (flow["pattern"] == "job" and spec.step == "start")
 
 

@@ -13,7 +13,6 @@ from decodo_adk import DecodoTool, DecodoToolset, ToolSpec
 from decodo_adk.client import INTEGRATION_HEADER, load_schema
 from decodo_adk.tool_specs import CEILINGS, Limits, specs_from_surface
 
-# The limits the published surface gives every tool that returns content.
 LIMITS = Limits()
 
 TOOL_NAMES = [
@@ -45,9 +44,6 @@ def call(tool: DecodoTool, **args: Any) -> dict[str, Any]:
     result = asyncio.run(tool.run_async(args=args, tool_context=None))  # type: ignore[arg-type]
     assert isinstance(result, dict)
     return result
-
-
-# --- what the published surface controls ----------------------------------------------------
 
 
 def test_the_tools_are_the_published_ones(ir: Ir) -> None:
@@ -173,9 +169,6 @@ def test_a_new_pending_status_keeps_the_results_tool_waiting(ir: Ir, http: FakeH
     assert "again right away" in call(tools_of(ir)["decodo_crawl_results"], crawl_id="c1")["next"]
 
 
-# --- defaults, caps and fixed values --------------------------------------------------------
-
-
 def test_published_default_replaces_the_api_default_and_is_sent(ir: Ir, http: FakeHttp) -> None:
     tool = tools_of(ir)["decodo_map"]
     http.answer(body={"results": [{"status_code": 200, "url": "https://a.test", "content": {"links": []}}]})
@@ -228,9 +221,6 @@ def test_input_the_api_schema_refuses_is_not_sent(ir: Ir, http: FakeHttp) -> Non
 
     assert result["code"] == "invalid_input"
     assert http.calls == []
-
-
-# --- requests -------------------------------------------------------------------------------
 
 
 def test_every_request_carries_the_key_and_the_integration_header(ir: Ir, http: FakeHttp) -> None:
@@ -287,7 +277,6 @@ def test_crawl_results_returns_pages_once_settled(ir: Ir, http: FakeHttp) -> Non
 
 @pytest.fixture
 def fast_clock(monkeypatch: pytest.MonkeyPatch) -> list[float]:
-    """Makes the SDK's waiting instant and records each sleep."""
     import decodo.api.flows as flows_module
 
     clock = [0.0]
@@ -314,9 +303,6 @@ def test_crawl_results_waits_inside_the_call_then_asks_to_be_called_again(
     assert (result["crawl_id"], result["status"]) == ("c1", "pending")
     assert "again right away" in result["next"]
     assert all(sent["method"] == "GET" for sent in http.calls)
-
-
-# --- result size ----------------------------------------------------------------------------
 
 
 def test_long_content_is_cut(ir: Ir, http: FakeHttp) -> None:
@@ -446,9 +432,6 @@ def test_published_floor_raises_a_value_the_api_would_read_as_no_limit(ir: Ir, h
     assert http.calls[0]["json"]["limit"] == 1
 
 
-# --- how a response is read is published too -------------------------------------------------
-
-
 def test_a_changed_result_rule_changes_what_the_tool_returns(ir: Ir, http: FakeHttp) -> None:
     tool_entry(ir, "decodo_scrape")["result"]["fields"] = {"page": "url", "markdown": "content", "at": "updated_at"}
     tool_entry(ir, "decodo_scrape")["result"]["required"] = ["markdown"]
@@ -477,9 +460,6 @@ def test_a_tool_without_a_result_rule_returns_the_response(ir: Ir, http: FakeHtt
     http.answer(body=reply)
 
     assert call(tools_of(ir)["decodo_map"], url="https://a.test") == reply
-
-
-# --- failures -------------------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -633,9 +613,6 @@ def test_a_refused_crawl_start_stays_retryable(ir: Ir, http: FakeHttp) -> None:
     assert call(tools_of(ir)["decodo_crawl_start"], url="https://a.test")["retryable"] is True
 
 
-# --- a published schema that does not fit this code -----------------------------------------
-
-
 @pytest.mark.parametrize(
     "change",
     [
@@ -702,9 +679,6 @@ def test_bundled_schema_is_used_when_the_published_one_cannot_be_loaded(monkeypa
     monkeypatch.setattr(RemoteSchema, "load", unreachable)
 
     assert load_schema() is BundledSchema.shared
-
-
-# --- the caller's own choices ---------------------------------------------------------------
 
 
 def test_own_specs_replace_the_published_tools(ir: Ir, http: FakeHttp) -> None:
