@@ -1,5 +1,3 @@
-"""Turns SDK and transport errors into a result the model can read and act on."""
-
 from __future__ import annotations
 
 from typing import Any
@@ -10,7 +8,6 @@ from decodo.errors import TimeoutError as DecodoTimeoutError
 
 from .client import API_KEY_ENV_VAR
 
-# Failures where the request may have reached Decodo and been acted on, so sending it again could repeat it.
 MAYBE_SENT_CODES = frozenset({"timeout", "network_error", "unexpected_error"})
 
 
@@ -40,8 +37,6 @@ def failure_from(error: BaseException) -> dict[str, Any]:
 
 
 def maybe_sent(result: dict[str, Any], *, partly: bool = False) -> bool:
-    """Whether a failed request may still have started work. ``partly`` is for a batch,
-    which Decodo can refuse as a whole while accepting some of its items."""
     code = str(result.get("code"))
     if partly and code == "invalid_input":
         return True

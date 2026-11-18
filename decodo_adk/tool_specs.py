@@ -1,12 +1,3 @@
-"""Reads the tools Decodo publishes for this client.
-
-Which tools exist, what they are called, the text a model reads, the fields they
-show and the values they fix are not in this repository. Decodo publishes them
-with its schema as the ``google-adk-python`` surface, and each tool names the
-flow it runs, how its response is read and how much of it a model gets. Field
-types, enums and limits come from the API description.
-"""
-
 from __future__ import annotations
 
 import logging
@@ -23,11 +14,6 @@ STEPS = frozenset({"start", "results", "cancel"})
 
 @dataclass(frozen=True)
 class Limits:
-    """How much one tool call puts into a model's context, and how long it waits for a job.
-
-    The values here are used when the surface publishes none, or one this client cannot read.
-    """
-
     max_result_chars: int = 60_000
     max_text_chars: int = 40_000
     max_items: int = 50
@@ -35,7 +21,6 @@ class Limits:
     wait_seconds: int = 45
 
 
-# The most a published limit can ask for, so a wrong value cannot flood a model's context.
 CEILINGS = Limits(
     max_result_chars=200_000, max_text_chars=150_000, max_items=200, max_list_values=2_000, wait_seconds=120
 )
@@ -54,29 +39,17 @@ class ToolSpec:
     name: str
     description: str
     flow: str
-    """The flow the tool runs: one call, a job, or a batch of jobs."""
     step: str | None = None
-    """Which part of a job flow the tool is: start, results or cancel."""
     result: Mapping[str, Any] | None = None
-    """The published rule for reading the response; without one it is returned as it is."""
     limits: Limits = Limits()
-    """How much of the result a model gets, and how long a results tool waits for its job."""
     target: str | None = None
-    """Scrape target whose parameters are the tool's fields, when the flow's endpoint lists none."""
     fields: tuple[str, ...] = ()
-    """API fields shown to the model, in order."""
     required: tuple[str, ...] = ()
-    """Shown fields the model must give, on top of those the API requires."""
     fixed: Mapping[str, Any] = field(default_factory=dict)
-    """API fields always sent with this value and never shown."""
     defaults: Mapping[str, Any] = field(default_factory=dict)
-    """Values used when the model leaves a shown field out; they replace the API default."""
     maximums: Mapping[str, float] = field(default_factory=dict)
-    """Caps on shown numeric fields, below the API's own; larger values are lowered to the cap."""
     minimums: Mapping[str, float] = field(default_factory=dict)
-    """Floors on shown numeric fields; smaller values are raised to the floor."""
     descriptions: Mapping[str, str] = field(default_factory=dict)
-    """Text a model reads for an input, in place of the schema's."""
 
 
 def _text(entry: Mapping[str, Any], key: str, *, optional: bool = False) -> Any:
@@ -103,7 +76,6 @@ def _result_rule(entry: Mapping[str, Any]) -> Mapping[str, Any] | None:
 
 
 def _limits(entry: Mapping[str, Any]) -> Limits:
-    """The published limits, each held under its ceiling. One this client cannot read keeps its built-in value."""
     published = entry.get("limits") or {}
     if not isinstance(published, Mapping):
         logger.warning("Ignoring the limits of the published tool %r: not an object.", entry.get("name"))
@@ -160,7 +132,6 @@ def _spec_from(entry: Any) -> ToolSpec:
 
 
 def specs_from_surface(surface: Any) -> tuple[ToolSpec, ...]:
-    """The tools of a published surface. One this client cannot read is left out."""
     entries = surface.get("tools") if isinstance(surface, Mapping) else None
     specs: list[ToolSpec] = []
     for entry in entries if isinstance(entries, list) else []:

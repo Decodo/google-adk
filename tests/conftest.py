@@ -13,10 +13,8 @@ from decodo import RemoteSchema
 API_KEY = "test-key"
 CLIENT = "google-adk-python"
 
-# Importing research_agent builds the agent, which needs a key to exist.
 os.environ.setdefault("DECODO_API_KEY", API_KEY)
 
-# Cut from the Decodo IR built for version 2.6.0: its real endpoints, flows and surface.
 PUBLISHED_IR = json.loads((Path(__file__).parent / "fixtures" / "ir.json").read_text(encoding="utf-8"))
 
 Ir = dict[str, Any]
@@ -32,8 +30,6 @@ def tool_entry(ir: Ir, name: str) -> dict[str, Any]:
 
 
 class FakeHttp:
-    """Replaces the SDK's httpx.request: records every call and answers from a queue."""
-
     def __init__(self) -> None:
         self.calls: list[dict[str, Any]] = []
         self.answers: list[httpx.Response | Exception] = []
@@ -54,7 +50,6 @@ class FakeHttp:
 
 @pytest.fixture
 def ir() -> Ir:
-    """A copy of the published IR that a test may change."""
     return copy.deepcopy(PUBLISHED_IR)
 
 
