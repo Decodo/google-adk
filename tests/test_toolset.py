@@ -444,9 +444,9 @@ def test_a_changed_result_rule_changes_what_the_tool_returns(ir: Ir, http: FakeH
 
 
 def test_a_new_failure_rule_turns_a_reply_into_an_error(ir: Ir, http: FakeHttp) -> None:
-    tool_entry(ir, "decodo_map")["result"]["failures"].append(
+    tool_entry(ir, "decodo_map")["result"]["failures"] = [
         {"path": "results.0.warning", "equals": "robots_disallowed", "message": "results.0.warning"}
-    )
+    ]
     http.answer(body={"results": [{"status_code": 200, "url": "https://a.test", "warning": "robots_disallowed"}]})
 
     result = call(tools_of(ir)["decodo_map"], url="https://a.test")
