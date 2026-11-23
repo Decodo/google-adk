@@ -668,7 +668,7 @@ def test_no_usable_schema_anywhere_is_a_clear_error(ir: Ir, monkeypatch: pytest.
     monkeypatch.setattr("decodo_adk.toolset.load_schema", lambda: schema_of(without_flows))
     monkeypatch.setattr(BundledSchema, "shared", schema_of(without_flows))
 
-    with pytest.raises(RuntimeError, match="decodo-sdk 2.6.0 or newer"):
+    with pytest.raises(RuntimeError, match="decodo-sdk 3.1.0 or newer"):
         asyncio.run(DecodoToolset(api_key=API_KEY).get_tools())
 
 
