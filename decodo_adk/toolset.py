@@ -170,7 +170,7 @@ class DecodoToolset(BaseToolset):
         if not tools:
             raise RuntimeError(
                 "No Decodo tools could be built. The Decodo schema must describe flows and a "
-                f"{INTEGRATION_HEADER} surface, which needs decodo-sdk 2.6.0 or newer."
+                f"{INTEGRATION_HEADER} surface, which needs decodo-sdk 3.1.0 or newer."
             )
         return tools
 

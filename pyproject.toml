@@ -17,8 +17,8 @@ classifiers = [
 ]
 requires-python = ">=3.11,<3.14"
 dependencies = [
-    # 2.6.0 is the first release with flows and surfaces, which every tool is built from.
-    "decodo-sdk>=2.6.0",
+    # 3.1.0 is the first release with flows and surfaces, which every tool is built from.
+    "decodo-sdk>=3.1.0",
     # 2.14 passes a raw JSON schema through FunctionDeclaration.parameters_json_schema.
     "google-adk>=2.14,<3",
     "httpx>=0.27",
