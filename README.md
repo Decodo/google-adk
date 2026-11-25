@@ -94,11 +94,10 @@ most, and every crawl can be checked or stopped by its `crawl_id`.
 
 ### Use the tools in your own agent
 
-The toolset needs neither the example nor `gspread`, so install the package on its own, without
-the `example` extra. It is not on PyPI yet, so install it from a clone of this repository:
+The toolset needs neither the example nor `gspread`, so install the package on its own from PyPI:
 
 ```bash
-pip install /path/to/google-adk
+pip install decodo-adk
 ```
 
 ```python
