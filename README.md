@@ -16,7 +16,8 @@ Decodo publishes, so a new tool, field or limit reaches the agent without a code
 - Python 3.11 to 3.13
 - A Decodo Web Data API key from the [playground](https://dashboard.decodo.com/web-data/playground)
 - A Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey)
-- A Google Cloud service account with the Google Sheets API enabled, and a sheet shared with it
+- A Google Cloud project with the Google Sheets API enabled, a service account in it, and a sheet
+  shared with that account
 
 ## Setup
 
@@ -38,12 +39,19 @@ Fill in `research_agent/.env`. Nothing else holds credentials, and the file is g
 | `GOOGLE_SHEET_ID` | The id in the sheet's URL: `docs.google.com/spreadsheets/d/<id>/edit` |
 | `GEMINI_MODEL` | Optional. A Gemini model id; defaults to the ADK default model |
 
+`adk` reads this file when it starts the agent, and keeps variables already set in your shell over
+the ones in the file. So if `GOOGLE_GENAI_USE_VERTEXAI` is true in your shell, the model goes to
+Vertex AI and `GOOGLE_API_KEY` is ignored; unset it in the shell, not in `.env`.
+
 ### Google Sheets access
 
-1. In Google Cloud, enable the **Google Sheets API** and create a service account.
+1. In your Google Cloud project, enable the **Google Sheets API** and create a service account.
 2. Create a JSON key for it and save the file outside the repository.
 3. Create a sheet and share it with the service account's email as **Editor**. Share only this
    sheet: the agent asks for the Sheets scope alone and can reach nothing else.
+
+An empty sheet is enough. The **Search results** and **Analysis** tabs are created, with their
+headers, the first time the agent writes to each.
 
 ### Check the Decodo key
 
@@ -66,6 +74,9 @@ The agent searches, logs the results to the **Search results** tab, reads the to
 analysis, logs it to the **Analysis** tab and shows it to you. `adk web` gives the same agent a
 browser UI.
 
+The agent is told that what the tools return is page content, never instructions to it. A scraped
+page is untrusted input: keep that line in any agent you build from this one.
+
 ## Tools
 
 | Tool | What it does |
@@ -83,12 +94,21 @@ most, and every crawl can be checked or stopped by its `crawl_id`.
 
 ### Use the tools in your own agent
 
+The toolset needs neither the example nor `gspread`, so install the package on its own, without
+the `example` extra. It is not on PyPI yet, so install it from a clone of this repository:
+
+```bash
+pip install /path/to/google-adk
+```
+
 ```python
 from google.adk.agents import LlmAgent
 from decodo_adk import DecodoToolset
 
 agent = LlmAgent(name="my_agent", tools=[DecodoToolset()])
 ```
+
+`DecodoToolset()` reads `DECODO_API_KEY`. Pass `api_key=...` to set it in code instead.
 
 ### What Decodo controls without a release
 
@@ -109,7 +129,8 @@ Code is needed only for a new way of running things. This repository keeps a fal
 for each limit, so a wrong published value cannot flood the model's context.
 
 If the published schema cannot be fetched, or gives no usable tools, the copy bundled with
-`decodo-sdk` is used. To define the tools yourself, pass `DecodoToolset(specs=[ToolSpec(...)])`.
+`decodo-sdk` is used. To define the tools yourself, import `ToolSpec` from `decodo_adk` and pass
+`DecodoToolset(specs=[ToolSpec(...)])`.
 
 ## Errors
 
@@ -120,6 +141,7 @@ the agent decides what to do.
 |---|---|
 | `authentication_failed` | Decodo rejected the key; check `DECODO_API_KEY` |
 | `rate_limited`, `timeout`, `network_error`, `5xx` | Temporary; `retryable` is true |
+| another HTTP status, such as `403` or `404` | Decodo refused the request; `retryable` is false |
 | `invalid_input` | Decodo refused the input; it must change before a retry |
 | a target status such as `613`, `failed`, `empty_content`, `empty_response` | Decodo answered, but the page or search could not be retrieved |
 | `invalid_request` | The request could not be sent; check `DECODO_API_KEY` for stray characters |
