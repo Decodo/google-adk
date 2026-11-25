@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,8 @@ from decodo import RemoteSchema
 
 API_KEY = "test-key"
 CLIENT = "google-adk-python"
+
+os.environ.setdefault("DECODO_API_KEY", API_KEY)
 
 PUBLISHED_IR = json.loads((Path(__file__).parent / "fixtures" / "ir.json").read_text(encoding="utf-8"))
 

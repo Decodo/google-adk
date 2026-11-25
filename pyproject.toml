@@ -25,7 +25,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.4", "mypy>=1.10"]
+example = ["gspread>=6.2"]
+dev = ["decodo-adk[example]", "pytest>=8", "ruff>=0.4", "mypy>=1.10"]
 
 [project.urls]
 Homepage = "https://decodo.com"
@@ -47,10 +48,11 @@ select = ["E", "F", "I", "UP"]
 
 [tool.mypy]
 strict = true
-packages = ["decodo_adk"]
+packages = ["decodo_adk", "research_agent"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 
 [tool.semantic_release]
 version_toml = ["pyproject.toml:project.version"]
