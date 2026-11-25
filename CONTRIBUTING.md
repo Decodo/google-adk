@@ -18,10 +18,11 @@ CI runs the same four commands on Python 3.11 to 3.13.
 
 ## Releases
 
-Releases are automated. Merging to `main` tags a new version and creates a GitHub release, based on
+Releases are automated. Merging to `main` tags a new version, creates a GitHub release and
+publishes `decodo-adk` to PyPI, based on
 the PR title: `fix:` → patch, `feat:` → minor, `feat!:` or a `BREAKING CHANGE:` footer → major.
 `chore:`, `docs:`, `ci:`, `refactor:`, `test:` don't release. Don't edit the version in
-`pyproject.toml`. The package is not published to PyPI yet.
+`pyproject.toml`.
 
 ## Where things go
 
